@@ -67,9 +67,10 @@ namespace RabbitMQ.Client.Impl
         {
             UnlessShuttingDown(() =>
             {
+                bool shallReturn = false;
                 try
                 {
-                    consumer.HandleBasicDeliver(consumerTag,
+                    shallReturn = consumer.HandleBasicDeliver(consumerTag,
                                                 deliveryTag,
                                                 redelivered,
                                                 exchange,
@@ -88,7 +89,10 @@ namespace RabbitMQ.Client.Impl
                 }
                 finally
                 {
-                    ArrayPool<byte>.Shared.Return(rentedArray);
+                    if (shallReturn)
+                    {
+                        ArrayPool<byte>.Shared.Return(rentedArray);
+                    }
                 }
             });
         }

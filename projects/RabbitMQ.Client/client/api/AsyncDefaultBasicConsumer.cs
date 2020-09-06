@@ -163,7 +163,7 @@ namespace RabbitMQ.Client
             throw new InvalidOperationException("Should never be called.");
         }
 
-        void IBasicConsumer.HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, ReadOnlyMemory<byte> body)
+        bool IBasicConsumer.HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, ReadOnlyMemory<byte> body)
         {
             throw new InvalidOperationException("Should never be called.");
         }

@@ -89,7 +89,7 @@ namespace RabbitMQ.Client
         /// Note that in particular, some delivered messages may require acknowledgement via <see cref="IModel.BasicAck"/>.
         /// The implementation of this method in this class does NOT acknowledge such messages.
         /// </remarks>
-        void HandleBasicDeliver(string consumerTag,
+        bool HandleBasicDeliver(string consumerTag,
             ulong deliveryTag,
             bool redelivered,
             string exchange,

@@ -1088,7 +1088,7 @@ namespace RabbitMQ.Client.Unit
                 _action = fn;
             }
 
-            public override void HandleBasicDeliver(string consumerTag,
+            public override bool HandleBasicDeliver(string consumerTag,
                 ulong deliveryTag,
                 bool redelivered,
                 string exchange,
@@ -1112,6 +1112,8 @@ namespace RabbitMQ.Client.Unit
                 {
                     _counter += 1;
                 }
+
+                return false;
             }
 
             public virtual void PostHandleDelivery(ulong deliveryTag)

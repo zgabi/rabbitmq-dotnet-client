@@ -45,7 +45,7 @@ namespace RabbitMQ.Client.Unit
         {
             public FaultyConsumer(IModel model) : base(model) {}
 
-            public override void HandleBasicDeliver(string consumerTag,
+            public override bool HandleBasicDeliver(string consumerTag,
                                                ulong deliveryTag,
                                                bool redelivered,
                                                string exchange,
