@@ -30,7 +30,6 @@
 //---------------------------------------------------------------------------
 
 using System;
-using RabbitMQ.Client.Impl;
 
 namespace RabbitMQ.Client.Events
 {
