@@ -58,14 +58,16 @@ namespace RabbitMQ.Client.Events
             Exchange = exchange;
             RoutingKey = routingKey;
             BasicProperties = properties;
-            Body = body;
+            _body = body;
         }
+
+        private readonly ReadOnlyMemory<byte> _body;
 
         ///<summary>The content header of the message.</summary>
         public IBasicProperties BasicProperties { get; set; }
 
         ///<summary>The message body.</summary>
-        public ReadOnlyMemory<byte> Body { get; set; }
+        public ReadOnlySpan<byte> Body => _body.Span;
 
         ///<summary>The consumer tag of the consumer that the message
         ///was delivered to.</summary>

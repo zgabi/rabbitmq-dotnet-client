@@ -153,7 +153,7 @@ namespace RabbitMQ.Client
             string exchange,
             string routingKey,
             IBasicProperties properties,
-            ReadOnlyMemory<byte> body)
+            in BodyData body)
         {
             // Nothing to do here.
         }
