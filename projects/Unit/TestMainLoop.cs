@@ -51,7 +51,7 @@ namespace RabbitMQ.Client.Unit
                                                string exchange,
                                                string routingKey,
                                                IBasicProperties properties,
-                                               in BodyData body)
+                                               ReadOnlyMemory<byte> body)
             {
                 throw new Exception("I am a bad consumer");
             }

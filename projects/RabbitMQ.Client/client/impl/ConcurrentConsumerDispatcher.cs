@@ -67,8 +67,6 @@ namespace RabbitMQ.Client.Impl
         {
             UnlessShuttingDown(() =>
             {
-                var bodyData = new BodyData(body, rentedArray);
-
                 try
                 {
                     consumer.HandleBasicDeliver(consumerTag,
@@ -77,7 +75,7 @@ namespace RabbitMQ.Client.Impl
                                                 exchange,
                                                 routingKey,
                                                 basicProperties,
-                                                in bodyData);
+                                                body);
                 }
                 catch (Exception e)
                 {
@@ -90,7 +88,7 @@ namespace RabbitMQ.Client.Impl
                 }
                 finally
                 {
-                    bodyData.ReturnPayload();
+                    ArrayPool<byte>.Shared.Return(rentedArray);
                 }
             });
         }
