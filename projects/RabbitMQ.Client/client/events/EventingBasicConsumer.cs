@@ -30,6 +30,7 @@
 //---------------------------------------------------------------------------
 
 using System;
+using RabbitMQ.Client.Impl;
 
 namespace RabbitMQ.Client.Events
 {
@@ -84,12 +85,12 @@ namespace RabbitMQ.Client.Events
         /// Accessing the body at a later point is unsafe as its memory can
         /// be already released.
         /// </remarks>
-        public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, ReadOnlyMemory<byte> body)
+        public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, IBasicProperties properties, in BodyData body)
         {
-            base.HandleBasicDeliver(consumerTag, deliveryTag, redelivered, exchange, routingKey, properties, body);
+            base.HandleBasicDeliver(consumerTag, deliveryTag, redelivered, exchange, routingKey, properties, in body);
             Received?.Invoke(
                 this,
-                new BasicDeliverEventArgs(consumerTag, deliveryTag, redelivered, exchange, routingKey, properties, body));
+                new BasicDeliverEventArgs(consumerTag, deliveryTag, redelivered, exchange, routingKey, properties, body.BodyMemory));
         }
 
         ///<summary>Fires the Shutdown event.</summary>

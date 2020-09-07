@@ -32,6 +32,7 @@
 using System;
 
 using RabbitMQ.Client.Events;
+using RabbitMQ.Client.Impl;
 
 namespace RabbitMQ.Client
 {
@@ -95,7 +96,7 @@ namespace RabbitMQ.Client
             string exchange,
             string routingKey,
             IBasicProperties properties,
-            ReadOnlyMemory<byte> body);
+            in BodyData body);
 
         /// <summary>
         ///  Called when the model shuts down.
