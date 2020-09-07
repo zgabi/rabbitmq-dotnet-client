@@ -147,7 +147,7 @@ namespace RabbitMQ.Client
         /// Accessing the body at a later point is unsafe as its memory can
         /// be already released.
         /// </remarks>
-        public virtual bool HandleBasicDeliver(string consumerTag,
+        public virtual void HandleBasicDeliver(string consumerTag,
             ulong deliveryTag,
             bool redelivered,
             string exchange,
@@ -156,7 +156,6 @@ namespace RabbitMQ.Client
             ReadOnlyMemory<byte> body)
         {
             // Nothing to do here.
-            return false;
         }
 
         /// <summary>

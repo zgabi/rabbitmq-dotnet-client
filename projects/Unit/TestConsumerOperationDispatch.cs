@@ -82,7 +82,7 @@ namespace RabbitMQ.Client.Unit
                 DeliveryTags = new List<ulong>();
             }
 
-            public override bool HandleBasicDeliver(string consumerTag,
+            public override void HandleBasicDeliver(string consumerTag,
                 ulong deliveryTag, bool redelivered, string exchange, string routingKey,
                 IBasicProperties properties, ReadOnlyMemory<byte> body)
             {
@@ -97,7 +97,6 @@ namespace RabbitMQ.Client.Unit
                 }
 
                 Model.BasicAck(deliveryTag: deliveryTag, multiple: false);
-                return false;
             }
         }
 
