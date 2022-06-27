@@ -51,7 +51,7 @@ namespace RabbitMQ.Client.Framing.Impl
         {
             lock (_recordedEntitiesLock)
             {
-                _recordedExchanges[exchange.Name] = exchange;
+                _recordedExchanges[exchange.Name.Value] = exchange;
             }
         }
 
@@ -67,7 +67,7 @@ namespace RabbitMQ.Client.Framing.Impl
                     if (binding.Destination == exchangeName)
                     {
                         DeleteRecordedBinding(binding);
-                        DeleteAutoDeleteExchange(binding.Source);
+                        DeleteAutoDeleteExchange(binding.Source.Value);
                     }
                 }
             }
@@ -91,7 +91,7 @@ namespace RabbitMQ.Client.Framing.Impl
             {
                 foreach (var recordedBinding in _recordedBindings)
                 {
-                    if (recordedBinding.Source == exchange)
+                    if (recordedBinding.Source.Equals(exchange))
                     {
                         return true;
                     }
@@ -123,7 +123,7 @@ namespace RabbitMQ.Client.Framing.Impl
                     if (binding.Destination == queueName)
                     {
                         DeleteRecordedBinding(binding);
-                        DeleteAutoDeleteExchange(binding.Source);
+                        DeleteAutoDeleteExchange(binding.Source.Value);
                     }
                 }
             }

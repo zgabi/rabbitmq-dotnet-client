@@ -45,7 +45,7 @@ namespace RabbitMQ.Client.Events
 
         ///<summary>The exchange the returned message was originally
         ///published to.</summary>
-        public string Exchange { get; set; }
+        public CachedString Exchange { get; set; }
 
         ///<summary>The AMQP reason code for the return. See
         ///RabbitMQ.Client.Framing.*.Constants.</summary>
@@ -57,6 +57,6 @@ namespace RabbitMQ.Client.Events
 
         ///<summary>The routing key used when the message was
         ///originally published.</summary>
-        public string RoutingKey { get; set; }
+        public CachedString RoutingKey { get; set; }
     }
 }

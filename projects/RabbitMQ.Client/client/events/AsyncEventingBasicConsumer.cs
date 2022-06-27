@@ -71,10 +71,10 @@ namespace RabbitMQ.Client.Events
         }
 
         ///<summary>Fires the Received event.</summary>
-        public override Task HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, in ReadOnlyBasicProperties properties, ReadOnlyMemory<byte> body)
+        public override Task HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, in CachedString exchange, in CachedString routingKey, in ReadOnlyBasicProperties properties, ReadOnlyMemory<byte> body)
         {
             // No need to call base, it's empty.
-            return _receivedWrapper.InvokeAsync(this, new BasicDeliverEventArgs(consumerTag, deliveryTag, redelivered, exchange, routingKey, properties, body));
+            return _receivedWrapper.InvokeAsync(this, new BasicDeliverEventArgs(consumerTag, deliveryTag, redelivered, in exchange, in routingKey, properties, body));
         }
 
         ///<summary>Fires the Shutdown event.</summary>

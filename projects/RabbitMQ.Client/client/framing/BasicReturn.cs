@@ -40,15 +40,15 @@ namespace RabbitMQ.Client.Framing.Impl
     {
         public readonly ushort _replyCode;
         public readonly string _replyText;
-        public readonly string _exchange;
-        public readonly string _routingKey;
+        public readonly CachedString _exchange;
+        public readonly CachedString _routingKey;
 
-        public BasicReturn(ReadOnlySpan<byte> span)
+        public BasicReturn(ReadOnlyMemory<byte> data)
         {
-            int offset = WireFormatting.ReadShort(span, out _replyCode);
-            offset += WireFormatting.ReadShortstr(span.Slice(offset), out _replyText);
-            offset += WireFormatting.ReadShortstr(span.Slice(offset), out _exchange);
-            WireFormatting.ReadShortstr(span.Slice(offset), out _routingKey);
+            int offset = WireFormatting.ReadShort(data.Span, out _replyCode);
+            offset += WireFormatting.ReadShortstr(data.Span.Slice(offset), out _replyText);
+            offset += WireFormatting.ReadShortstr(data.Slice(offset), out _exchange);
+            WireFormatting.ReadShortstr(data.Slice(offset), out _routingKey);
         }
 
         public ProtocolCommandId ProtocolCommandId => ProtocolCommandId.BasicReturn;

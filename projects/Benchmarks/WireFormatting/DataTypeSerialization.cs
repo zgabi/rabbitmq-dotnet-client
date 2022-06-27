@@ -211,10 +211,10 @@ namespace RabbitMQ.Benchmarks
         private readonly Memory<byte> _populatedShortStringBuffer = GenerateStringBuffer(new string('X', 255));
 
         [Benchmark]
-        public int ShortstrReadEmpty() => WireFormatting.ReadShortstr(_emptyShortStringBuffer.Span, out _);
+        public int ShortstrReadEmpty() => WireFormatting.ReadShortstr(_emptyShortStringBuffer.Span, out string _);
 
         [Benchmark]
-        public int ShortstrReadPopulated() => WireFormatting.ReadShortstr(_populatedShortStringBuffer.Span, out _);
+        public int ShortstrReadPopulated() => WireFormatting.ReadShortstr(_populatedShortStringBuffer.Span, out string _);
 
         [Benchmark]
         public int ShortstrWriteEmpty() => WireFormatting.WriteShortstr(ref _buffer.Span.GetStart(), string.Empty);

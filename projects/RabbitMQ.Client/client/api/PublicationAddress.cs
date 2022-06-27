@@ -72,6 +72,19 @@ namespace RabbitMQ.Client
         public PublicationAddress(string exchangeType, string exchangeName, string routingKey)
         {
             ExchangeType = exchangeType;
+            ExchangeName = new CachedString(exchangeName);
+            RoutingKey = new CachedString(routingKey);
+        }
+
+        /// <summary>
+        ///  Creates a new instance of the <see cref="PublicationAddress"/>.
+        /// </summary>
+        /// <param name="exchangeType">Exchange type.</param>
+        /// <param name="exchangeName">Exchange name.</param>
+        /// <param name="routingKey">Routing key.</param>
+        public PublicationAddress(string exchangeType, in CachedString exchangeName, in CachedString routingKey)
+        {
+            ExchangeType = exchangeType;
             ExchangeName = exchangeName;
             RoutingKey = routingKey;
         }
@@ -79,7 +92,7 @@ namespace RabbitMQ.Client
         /// <summary>
         /// Retrieve the exchange name.
         /// </summary>
-        public string ExchangeName { get; }
+        public CachedString ExchangeName { get; }
 
         /// <summary>
         /// Retrieve the exchange type string.
@@ -89,7 +102,7 @@ namespace RabbitMQ.Client
         /// <summary>
         ///Retrieve the routing key.
         /// </summary>
-        public string RoutingKey { get; }
+        public CachedString RoutingKey { get; }
 
         /// <summary>
         /// Parse a <see cref="PublicationAddress"/> out of the given string,

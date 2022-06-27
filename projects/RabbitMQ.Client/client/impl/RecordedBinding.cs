@@ -39,14 +39,14 @@ namespace RabbitMQ.Client.Impl
     {
         private readonly bool _isQueueBinding;
         private readonly string _destination;
-        private readonly string _source;
-        private readonly string _routingKey;
+        private readonly CachedString _source;
+        private readonly CachedString _routingKey;
         private readonly IDictionary<string, object>? _arguments;
 
         public string Destination => _destination;
-        public string Source => _source;
+        public CachedString Source => _source;
 
-        public RecordedBinding(bool isQueueBinding, string destination, string source, string routingKey, IDictionary<string, object>? arguments)
+        public RecordedBinding(bool isQueueBinding, string destination, in CachedString source, in CachedString routingKey, IDictionary<string, object>? arguments)
         {
             _isQueueBinding = isQueueBinding;
             _destination = destination;
@@ -78,8 +78,8 @@ namespace RabbitMQ.Client.Impl
 
         public bool Equals(RecordedBinding other)
         {
-            return _isQueueBinding == other._isQueueBinding && _destination == other._destination && _source == other._source &&
-                   _routingKey == other._routingKey && _arguments == other._arguments;
+            return _isQueueBinding == other._isQueueBinding && _destination == other._destination && _source.Equals(in other._source) &&
+                   _routingKey.Equals(in other._routingKey) && _arguments == other._arguments;
         }
 
         public override bool Equals(object? obj)

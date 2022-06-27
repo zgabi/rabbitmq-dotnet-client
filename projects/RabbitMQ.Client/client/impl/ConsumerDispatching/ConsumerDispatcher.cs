@@ -27,7 +27,7 @@ namespace RabbitMQ.Client.ConsumerDispatching
                         switch (work.WorkType)
                         {
                             case WorkType.Deliver:
-                                consumer.HandleBasicDeliver(consumerTag, work.DeliveryTag, work.Redelivered, work.Exchange, work.RoutingKey, work.BasicProperties, work.Body);
+                                consumer.HandleBasicDeliver(consumerTag, work.DeliveryTag, work.Redelivered, in work.Exchange, in work.RoutingKey, work.BasicProperties, work.Body);
                                 break;
                             case WorkType.Cancel:
                                 consumer.HandleBasicCancel(consumerTag);
@@ -49,6 +49,11 @@ namespace RabbitMQ.Client.ConsumerDispatching
                     }
                     finally
                     {
+                        if (work.RentedMethodArray != null)
+                        {
+                            ArrayPool<byte>.Shared.Return(work.RentedMethodArray);
+                        }
+
                         if (work.RentedArray != null)
                         {
                             ArrayPool<byte>.Shared.Return(work.RentedArray);

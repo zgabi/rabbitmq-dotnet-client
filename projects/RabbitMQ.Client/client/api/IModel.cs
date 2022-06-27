@@ -190,6 +190,7 @@ namespace RabbitMQ.Client
         /// </remarks>
         void BasicPublish<TProperties>(string exchange, string routingKey, ref TProperties basicProperties, ReadOnlyMemory<byte> body = default, bool mandatory = false)
             where TProperties : IReadOnlyBasicProperties, IAmqpHeader;
+        
         /// <summary>
         /// Publishes a message.
         /// </summary>
@@ -198,7 +199,7 @@ namespace RabbitMQ.Client
         ///     Routing key must be shorter than 255 bytes.
         ///   </para>
         /// </remarks>
-        void BasicPublish<TProperties>(CachedString exchange, CachedString routingKey, ref TProperties basicProperties, ReadOnlyMemory<byte> body = default, bool mandatory = false)
+        void BasicPublish<TProperties>(in CachedString exchange, in CachedString routingKey, ref TProperties basicProperties, ReadOnlyMemory<byte> body = default, bool mandatory = false)
             where TProperties : IReadOnlyBasicProperties, IAmqpHeader;
 #nullable disable
 
@@ -242,6 +243,16 @@ namespace RabbitMQ.Client
         ///   </para>
         /// </remarks>
         void ExchangeBind(string destination, string source, string routingKey, IDictionary<string, object> arguments);
+        
+        /// <summary>
+        /// Bind an exchange to an exchange.
+        /// </summary>
+        /// <remarks>
+        ///   <para>
+        ///     Routing key must be shorter than 255 bytes.
+        ///   </para>
+        /// </remarks>
+        void ExchangeBind(string destination, in CachedString source, in CachedString routingKey, IDictionary<string, object> arguments);
 
         /// <summary>
         /// Like ExchangeBind but sets nowait to true.
@@ -252,6 +263,16 @@ namespace RabbitMQ.Client
         ///   </para>
         /// </remarks>
         void ExchangeBindNoWait(string destination, string source, string routingKey, IDictionary<string, object> arguments);
+        
+        /// <summary>
+        /// Like ExchangeBind but sets nowait to true.
+        /// </summary>
+        /// <remarks>
+        ///   <para>
+        ///     Routing key must be shorter than 255 bytes.
+        ///   </para>
+        /// </remarks>
+        void ExchangeBindNoWait(string destination, in CachedString source, in CachedString routingKey, IDictionary<string, object> arguments);
 
         /// <summary>Declare an exchange.</summary>
         /// <remarks>
@@ -260,11 +281,24 @@ namespace RabbitMQ.Client
         /// </remarks>
         void ExchangeDeclare(string exchange, string type, bool durable, bool autoDelete, IDictionary<string, object> arguments);
 
+        /// <summary>Declare an exchange.</summary>
+        /// <remarks>
+        /// The exchange is declared non-passive and non-internal.
+        /// The "nowait" option is not exercised.
+        /// </remarks>
+        void ExchangeDeclare(in CachedString exchange, string type, bool durable, bool autoDelete, IDictionary<string, object> arguments);
+
         /// <summary>
         /// Same as ExchangeDeclare but sets nowait to true and returns void (as there
         /// will be no response from the server).
         /// </summary>
         void ExchangeDeclareNoWait(string exchange, string type, bool durable, bool autoDelete, IDictionary<string, object> arguments);
+
+        /// <summary>
+        /// Same as ExchangeDeclare but sets nowait to true and returns void (as there
+        /// will be no response from the server).
+        /// </summary>
+        void ExchangeDeclareNoWait(in CachedString exchange, string type, bool durable, bool autoDelete, IDictionary<string, object> arguments);
 
         /// <summary>
         /// Do a passive exchange declaration.
@@ -294,6 +328,14 @@ namespace RabbitMQ.Client
         /// Routing key must be shorter than 255 bytes.
         /// </remarks>
         void ExchangeUnbind(string destination, string source, string routingKey, IDictionary<string, object> arguments);
+        
+        /// <summary>
+        /// Unbind an exchange from an exchange.
+        /// </summary>
+        /// <remarks>
+        /// Routing key must be shorter than 255 bytes.
+        /// </remarks>
+        void ExchangeUnbind(string destination, in CachedString source, in CachedString routingKey, IDictionary<string, object> arguments);
 
         /// <summary>
         /// Like ExchangeUnbind but sets nowait to true.
@@ -304,6 +346,16 @@ namespace RabbitMQ.Client
         ///   </para>
         /// </remarks>
         void ExchangeUnbindNoWait(string destination, string source, string routingKey, IDictionary<string, object> arguments);
+        
+        /// <summary>
+        /// Like ExchangeUnbind but sets nowait to true.
+        /// </summary>
+        /// <remarks>
+        ///   <para>
+        ///     Routing key must be shorter than 255 bytes.
+        ///   </para>
+        /// </remarks>
+        void ExchangeUnbindNoWait(string destination, in CachedString source, in CachedString routingKey, IDictionary<string, object> arguments);
 
         /// <summary>
         /// Bind a queue to an exchange.
@@ -314,6 +366,16 @@ namespace RabbitMQ.Client
         ///   </para>
         /// </remarks>
         void QueueBind(string queue, string exchange, string routingKey, IDictionary<string, object> arguments);
+        
+        /// <summary>
+        /// Bind a queue to an exchange.
+        /// </summary>
+        /// <remarks>
+        ///   <para>
+        ///     Routing key must be shorter than 255 bytes.
+        ///   </para>
+        /// </remarks>
+        void QueueBind(string queue, in CachedString exchange, in CachedString routingKey, IDictionary<string, object> arguments);
 
         /// <summary>Same as QueueBind but sets nowait parameter to true.</summary>
         /// <remarks>
@@ -322,6 +384,14 @@ namespace RabbitMQ.Client
         ///   </para>
         /// </remarks>
         void QueueBindNoWait(string queue, string exchange, string routingKey, IDictionary<string, object> arguments);
+        
+        /// <summary>Same as QueueBind but sets nowait parameter to true.</summary>
+        /// <remarks>
+        ///   <para>
+        ///     Routing key must be shorter than 255 bytes.
+        ///   </para>
+        /// </remarks>
+        void QueueBindNoWait(string queue, in CachedString exchange, in CachedString routingKey, IDictionary<string, object> arguments);
 
         /// <summary>
         /// Declares a queue. See the <a href="https://www.rabbitmq.com/queues.html">Queues guide</a> to learn more.
@@ -398,6 +468,16 @@ namespace RabbitMQ.Client
         ///   </para>
         /// </remarks>
         void QueueUnbind(string queue, string exchange, string routingKey, IDictionary<string, object> arguments);
+        
+        /// <summary>
+        /// Unbind a queue from an exchange.
+        /// </summary>
+        /// <remarks>
+        ///   <para>
+        ///     Routing key must be shorter than 255 bytes.
+        ///   </para>
+        /// </remarks>
+        void QueueUnbind(string queue, in CachedString exchange, in CachedString routingKey, IDictionary<string, object> arguments);
 
         /// <summary>
         /// Commit this session's active TX transaction.

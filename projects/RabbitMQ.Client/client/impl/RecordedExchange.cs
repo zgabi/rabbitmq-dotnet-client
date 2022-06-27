@@ -36,16 +36,17 @@ namespace RabbitMQ.Client.Impl
 #nullable enable
     internal readonly struct RecordedExchange
     {
-        private readonly string _name;
+        private readonly CachedString _name;
         private readonly string _type;
         private readonly bool _durable;
         private readonly bool _isAutoDelete;
         private readonly IDictionary<string, object>? _arguments;
 
-        public string Name => _name;
+        public CachedString Name => _name;
+
         public bool IsAutoDelete => _isAutoDelete;
 
-        public RecordedExchange(string name, string type, bool durable, bool isAutoDelete, IDictionary<string, object>? arguments)
+        public RecordedExchange(in CachedString name, string type, bool durable, bool isAutoDelete, IDictionary<string, object>? arguments)
         {
             _name = name;
             _type = type;

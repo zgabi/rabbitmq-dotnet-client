@@ -190,6 +190,27 @@ namespace RabbitMQ.Client.Impl
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int ReadShortstr(ReadOnlyMemory<byte> data, out CachedString value)
+        {
+            int byteCount = data.Span[0];
+            if (byteCount == 0)
+            {
+                value = CachedString.Empty;
+                return 1;
+            }
+
+            // equals data.Length >= byteCount + 1
+            if (data.Length > byteCount)
+            {
+                value = new CachedString(data.Slice(1, byteCount));
+                return 1 + byteCount;
+            }
+
+            value = CachedString.Empty;
+            return ThrowArgumentOutOfRangeException(data.Length, byteCount + 1);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReadBits(ReadOnlySpan<byte> span, out bool val)
         {
             val = (span[0] & 0b0000_0001) != 0;

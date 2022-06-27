@@ -90,7 +90,7 @@ namespace RabbitMQ.Client.Unit
                                 }
                             }
 
-                            model.BasicPublish(CachedString.Empty, CachedString.Empty, _body);
+                            model.BasicPublish(in CachedString.Empty, in CachedString.Empty, _body);
                         }
                     }
                     finally

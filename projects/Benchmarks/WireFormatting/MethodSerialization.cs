@@ -31,9 +31,8 @@ namespace RabbitMQ.Benchmarks
 
     public class MethodBasicDeliver : MethodSerializationBase
     {
-        private const string StringValue = "Exchange_OR_RoutingKey";
-        private readonly BasicPublish _basicPublish = new BasicPublish(StringValue, StringValue, false, false);
-        private readonly BasicPublishMemory _basicPublishMemory = new BasicPublishMemory(Encoding.UTF8.GetBytes(StringValue), Encoding.UTF8.GetBytes(StringValue), false, false);
+        private static readonly CachedString StringValue = new CachedString("Exchange_OR_RoutingKey");
+        private readonly BasicPublish _basicPublish = new BasicPublish(in StringValue, in StringValue, false, false);
 
         public override void SetUp()
         {
@@ -45,19 +44,13 @@ namespace RabbitMQ.Benchmarks
         }
 
         [Benchmark]
-        public object BasicDeliverRead() => new BasicDeliver(_buffer.Span)._consumerTag; // return one property to not box when returning an object instead
+        public object BasicDeliverRead() => new BasicDeliver(_buffer)._consumerTag; // return one property to not box when returning an object instead
 
         [Benchmark]
         public int BasicPublishWrite() => _basicPublish.WriteTo(_buffer.Span);
 
         [Benchmark]
-        public int BasicPublishMemoryWrite() => _basicPublishMemory.WriteTo(_buffer.Span);
-
-        [Benchmark]
         public int BasicPublishSize() => _basicPublish.GetRequiredBufferSize();
-
-        [Benchmark]
-        public int BasicPublishMemorySize() => _basicPublishMemory.GetRequiredBufferSize();
     }
 
     public class MethodChannelClose : MethodSerializationBase

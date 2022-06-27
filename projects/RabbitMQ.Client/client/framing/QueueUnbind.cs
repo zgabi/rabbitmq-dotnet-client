@@ -42,11 +42,11 @@ namespace RabbitMQ.Client.Framing.Impl
         // deprecated
         // ushort _reserved1
         public readonly string _queue;
-        public readonly string _exchange;
-        public readonly string _routingKey;
+        public readonly CachedString _exchange;
+        public readonly CachedString _routingKey;
         public readonly IDictionary<string, object> _arguments;
 
-        public QueueUnbind(string Queue, string Exchange, string RoutingKey, IDictionary<string, object> Arguments)
+        public QueueUnbind(string Queue, in CachedString Exchange, in CachedString RoutingKey, IDictionary<string, object> Arguments)
         {
             _queue = Queue;
             _exchange = Exchange;
@@ -60,8 +60,8 @@ namespace RabbitMQ.Client.Framing.Impl
         {
             int offset = WireFormatting.WriteShort(ref span.GetStart(), default);
             offset += WireFormatting.WriteShortstr(ref span.GetOffset(offset), _queue);
-            offset += WireFormatting.WriteShortstr(ref span.GetOffset(offset), _exchange);
-            offset += WireFormatting.WriteShortstr(ref span.GetOffset(offset), _routingKey);
+            offset += WireFormatting.WriteShortstr(ref span.GetOffset(offset), in _exchange);
+            offset += WireFormatting.WriteShortstr(ref span.GetOffset(offset), in _routingKey);
             return offset + WireFormatting.WriteTable(ref span.GetOffset(offset), _arguments);
         }
 
@@ -69,8 +69,8 @@ namespace RabbitMQ.Client.Framing.Impl
         {
             int bufferSize = 2 + 1 + 1 + 1; // bytes for _reserved1, length of _queue, length of _exchange, length of _routingKey
             bufferSize += WireFormatting.GetByteCount(_queue); // _queue in bytes
-            bufferSize += WireFormatting.GetByteCount(_exchange); // _exchange in bytes
-            bufferSize += WireFormatting.GetByteCount(_routingKey); // _routingKey in bytes
+            bufferSize += _exchange.BytesLength; // _exchange in bytes
+            bufferSize += _routingKey.BytesLength; // _routingKey in bytes
             bufferSize += WireFormatting.GetTableByteCount(_arguments); // _arguments in bytes
             return bufferSize;
         }

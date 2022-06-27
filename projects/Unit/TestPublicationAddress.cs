@@ -44,8 +44,8 @@ namespace RabbitMQ.Client.Unit
             string uriLike = "fanout://name/key";
             PublicationAddress addr = PublicationAddress.Parse(uriLike);
             Assert.Equal(ExchangeType.Fanout, addr.ExchangeType);
-            Assert.Equal("name", addr.ExchangeName);
-            Assert.Equal("key", addr.RoutingKey);
+            Assert.Equal("name", addr.ExchangeName.Value);
+            Assert.Equal("key", addr.RoutingKey.Value);
             Assert.Equal(uriLike, addr.ToString());
         }
 
@@ -80,8 +80,8 @@ namespace RabbitMQ.Client.Unit
             string uriLike = "direct:///key";
             PublicationAddress addr = PublicationAddress.Parse(uriLike);
             Assert.Equal(ExchangeType.Direct, addr.ExchangeType);
-            Assert.Equal("", addr.ExchangeName);
-            Assert.Equal("key", addr.RoutingKey);
+            Assert.Equal("", addr.ExchangeName.Value);
+            Assert.Equal("key", addr.RoutingKey.Value);
             Assert.Equal(uriLike, addr.ToString());
         }
 
@@ -91,8 +91,8 @@ namespace RabbitMQ.Client.Unit
             string uriLike = "direct://exch/";
             PublicationAddress addr = PublicationAddress.Parse(uriLike);
             Assert.Equal(ExchangeType.Direct, addr.ExchangeType);
-            Assert.Equal("exch", addr.ExchangeName);
-            Assert.Equal("", addr.RoutingKey);
+            Assert.Equal("exch", addr.ExchangeName.Value);
+            Assert.Equal("", addr.RoutingKey.Value);
             Assert.Equal(uriLike, addr.ToString());
         }
 

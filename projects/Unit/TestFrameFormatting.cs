@@ -32,7 +32,7 @@
 using System;
 using System.Buffers;
 using System.Runtime.InteropServices;
-
+using System.Text;
 using RabbitMQ.Client.Framing.Impl;
 
 using Xunit;
@@ -111,7 +111,7 @@ namespace RabbitMQ.Client.Unit
         {
             const int Channel = 3;
 
-            var method = new BasicPublish("E", "R", true, true);
+            var method = new BasicPublish(new CachedString("E"), new CachedString("R"), true, true);
             int payloadSize = method.GetRequiredBufferSize();
             byte[] frameBytes = new byte[Impl.Framing.Method.FrameSize + payloadSize];
             Impl.Framing.Method.WriteTo(frameBytes, Channel, ref method);

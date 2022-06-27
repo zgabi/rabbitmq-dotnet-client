@@ -24,7 +24,7 @@ namespace RabbitMQ.Client.ConsumerDispatching
                     {
                         var task = work.WorkType switch
                         {
-                            WorkType.Deliver => work.AsyncConsumer.HandleBasicDeliver(work.ConsumerTag, work.DeliveryTag, work.Redelivered, work.Exchange, work.RoutingKey, work.BasicProperties, work.Body),
+                            WorkType.Deliver => work.AsyncConsumer.HandleBasicDeliver(work.ConsumerTag, work.DeliveryTag, work.Redelivered, in work.Exchange, in work.RoutingKey, work.BasicProperties, work.Body),
                             WorkType.Cancel => work.AsyncConsumer.HandleBasicCancel(work.ConsumerTag),
                             WorkType.CancelOk => work.AsyncConsumer.HandleBasicCancelOk(work.ConsumerTag),
                             WorkType.ConsumeOk => work.AsyncConsumer.HandleBasicConsumeOk(work.ConsumerTag),
@@ -39,6 +39,11 @@ namespace RabbitMQ.Client.ConsumerDispatching
                     }
                     finally
                     {
+                        if (work.RentedMethodArray != null)
+                        {
+                            ArrayPool<byte>.Shared.Return(work.RentedMethodArray);
+                        }
+
                         if (work.RentedArray != null)
                         {
                             ArrayPool<byte>.Shared.Return(work.RentedArray);

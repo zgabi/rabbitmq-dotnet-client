@@ -41,16 +41,16 @@ namespace RabbitMQ.Client.Framing.Impl
         public readonly string _consumerTag;
         public readonly ulong _deliveryTag;
         public readonly bool _redelivered;
-        public readonly string _exchange;
-        public readonly string _routingKey;
+        public readonly CachedString _exchange;
+        public readonly CachedString _routingKey;
 
-        public BasicDeliver(ReadOnlySpan<byte> span)
+        public BasicDeliver(ReadOnlyMemory<byte> data)
         {
-            int offset = WireFormatting.ReadShortstr(span, out _consumerTag);
-            offset += WireFormatting.ReadLonglong(span.Slice(offset), out _deliveryTag);
-            offset += WireFormatting.ReadBits(span.Slice(offset), out _redelivered);
-            offset += WireFormatting.ReadShortstr(span.Slice(offset), out _exchange);
-            WireFormatting.ReadShortstr(span.Slice(offset), out _routingKey);
+            int offset = WireFormatting.ReadShortstr(data.Span, out _consumerTag);
+            offset += WireFormatting.ReadLonglong(data.Span.Slice(offset), out _deliveryTag);
+            offset += WireFormatting.ReadBits(data.Span.Slice(offset), out _redelivered);
+            offset += WireFormatting.ReadShortstr(data.Slice(offset), out _exchange);
+            WireFormatting.ReadShortstr(data.Slice(offset), out _routingKey);
         }
 
         public ProtocolCommandId ProtocolCommandId => ProtocolCommandId.BasicDeliver;

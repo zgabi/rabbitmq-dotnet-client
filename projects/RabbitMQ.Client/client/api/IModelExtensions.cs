@@ -91,8 +91,8 @@ namespace RabbitMQ.Client
         public static void BasicPublish(this IModel model, string exchange, string routingKey, ReadOnlyMemory<byte> body = default, bool mandatory = false)
             => model.BasicPublish(exchange, routingKey, ref EmptyBasicProperty.Empty, body, mandatory);
 
-        public static void BasicPublish(this IModel model, CachedString exchange, CachedString routingKey, ReadOnlyMemory<byte> body = default, bool mandatory = false)
-            => model.BasicPublish(exchange, routingKey, ref EmptyBasicProperty.Empty, body, mandatory);
+        public static void BasicPublish(this IModel model, in CachedString exchange, in CachedString routingKey, ReadOnlyMemory<byte> body = default, bool mandatory = false)
+            => model.BasicPublish(in exchange, in routingKey, ref EmptyBasicProperty.Empty, body, mandatory);
 #nullable disable
 
         /// <summary>
@@ -113,11 +113,27 @@ namespace RabbitMQ.Client
         }
 
         /// <summary>
+        /// (Extension method) Bind an exchange to an exchange.
+        /// </summary>
+        public static void ExchangeBind(this IModel model, string destination, in CachedString source, in CachedString routingKey, IDictionary<string, object> arguments = null)
+        {
+            model.ExchangeBind(destination, in source, in routingKey, arguments);
+        }
+
+        /// <summary>
         /// (Extension method) Like exchange bind but sets nowait to true. 
         /// </summary>
         public static void ExchangeBindNoWait(this IModel model, string destination, string source, string routingKey, IDictionary<string, object> arguments = null)
         {
             model.ExchangeBindNoWait(destination, source, routingKey, arguments);
+        }
+
+        /// <summary>
+        /// (Extension method) Like exchange bind but sets nowait to true. 
+        /// </summary>
+        public static void ExchangeBindNoWait(this IModel model, string destination, in CachedString source, in CachedString routingKey, IDictionary<string, object> arguments = null)
+        {
+            model.ExchangeBindNoWait(destination, in source, in routingKey, arguments);
         }
 
         /// <summary>
@@ -150,6 +166,17 @@ namespace RabbitMQ.Client
         }
 
         /// <summary>
+        /// (Spec method) Unbinds an exchange.
+        /// </summary>
+        public static void ExchangeUnbind(this IModel model, string destination,
+            in CachedString source,
+            in CachedString routingKey,
+            IDictionary<string, object> arguments = null)
+        {
+            model.ExchangeUnbind(destination, in source, in routingKey, arguments);
+        }
+
+        /// <summary>
         /// (Spec method) Deletes an exchange.
         /// </summary>
         public static void ExchangeDelete(this IModel model, string exchange, bool ifUnused = false)
@@ -174,6 +201,14 @@ namespace RabbitMQ.Client
         }
 
         /// <summary>
+        /// (Spec method) Binds a queue.
+        /// </summary>
+        public static void QueueBind(this IModel model, string queue, in CachedString exchange, in CachedString routingKey, IDictionary<string, object> arguments = null)
+        {
+            model.QueueBind(queue, in exchange, in routingKey, arguments);
+        }
+
+        /// <summary>
         /// (Spec method) Deletes a queue.
         /// </summary>
         public static uint QueueDelete(this IModel model, string queue, bool ifUnused = false, bool ifEmpty = false)
@@ -195,6 +230,14 @@ namespace RabbitMQ.Client
         public static void QueueUnbind(this IModel model, string queue, string exchange, string routingKey, IDictionary<string, object> arguments = null)
         {
             model.QueueUnbind(queue, exchange, routingKey, arguments);
+        }
+
+        /// <summary>
+        /// (Spec method) Unbinds a queue.
+        /// </summary>
+        public static void QueueUnbind(this IModel model, string queue, in CachedString exchange, in CachedString routingKey, IDictionary<string, object> arguments = null)
+        {
+            model.QueueUnbind(queue, in exchange, in routingKey, arguments);
         }
 
         /// <summary>

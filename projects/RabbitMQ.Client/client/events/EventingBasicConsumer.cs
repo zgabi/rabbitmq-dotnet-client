@@ -84,12 +84,12 @@ namespace RabbitMQ.Client.Events
         /// Accessing the body at a later point is unsafe as its memory can
         /// be already released.
         /// </remarks>
-        public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, string exchange, string routingKey, in ReadOnlyBasicProperties properties, ReadOnlyMemory<byte> body)
+        public override void HandleBasicDeliver(string consumerTag, ulong deliveryTag, bool redelivered, in CachedString exchange, in CachedString routingKey, in ReadOnlyBasicProperties properties, ReadOnlyMemory<byte> body)
         {
-            base.HandleBasicDeliver(consumerTag, deliveryTag, redelivered, exchange, routingKey, properties, body);
+            base.HandleBasicDeliver(consumerTag, deliveryTag, redelivered, in exchange, in routingKey, properties, body);
             Received?.Invoke(
                 this,
-                new BasicDeliverEventArgs(consumerTag, deliveryTag, redelivered, exchange, routingKey, properties, body));
+                new BasicDeliverEventArgs(consumerTag, deliveryTag, redelivered, in exchange, in routingKey, properties, body));
         }
 
         ///<summary>Fires the Shutdown event.</summary>

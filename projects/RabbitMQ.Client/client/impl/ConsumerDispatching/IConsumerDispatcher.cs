@@ -48,10 +48,11 @@ namespace RabbitMQ.Client.ConsumerDispatching
         void HandleBasicDeliver(string consumerTag,
                             ulong deliveryTag,
                             bool redelivered,
-                            string exchange,
-                            string routingKey,
+                            in CachedString exchange,
+                            in CachedString routingKey,
                             in ReadOnlyBasicProperties basicProperties,
                             ReadOnlyMemory<byte> body,
+                            byte[] rentedMethodArray,
                             byte[] rentedArray);
 
         void HandleBasicCancelOk(string consumerTag);

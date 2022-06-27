@@ -573,8 +573,7 @@ namespace RabbitMQ.Client.Impl
 
         protected void HandleBasicDeliver(in IncomingCommand cmd)
         {
-            var method = new Client.Framing.Impl.BasicDeliver(cmd.MethodBytes.Span);
-            cmd.ReturnMethodBuffer();
+            var method = new Client.Framing.Impl.BasicDeliver(cmd.MethodBytes);
             var header = new ReadOnlyBasicProperties(cmd.HeaderBytes.Span);
             cmd.ReturnHeaderBuffer();
 
@@ -582,17 +581,17 @@ namespace RabbitMQ.Client.Impl
                     method._consumerTag,
                     AdjustDeliveryTag(method._deliveryTag),
                     method._redelivered,
-                    method._exchange,
-                    method._routingKey,
+                    in method._exchange,
+                    in method._routingKey,
                     header,
                     cmd.Body,
+                    cmd.TakeoverMethod(),
                     cmd.TakeoverBody());
         }
 
         protected void HandleBasicGetOk(in IncomingCommand cmd)
         {
-            var method = new BasicGetOk(cmd.MethodBytes.Span);
-            cmd.ReturnMethodBuffer();
+            var method = new BasicGetOk(cmd.MethodBytes);
             var header = new ReadOnlyBasicProperties(cmd.HeaderBytes.Span);
             cmd.ReturnHeaderBuffer();
 
@@ -605,6 +604,7 @@ namespace RabbitMQ.Client.Impl
                 method._messageCount,
                 header,
                 cmd.Body,
+                cmd.TakeoverMethod(),
                 cmd.TakeoverBody());
             k.HandleCommand(IncomingCommand.Empty); // release the continuation.
         }
@@ -632,7 +632,7 @@ namespace RabbitMQ.Client.Impl
         {
             if (!_basicReturnWrapper.IsEmpty)
             {
-                var basicReturn = new BasicReturn(cmd.MethodBytes.Span);
+                var basicReturn = new BasicReturn(cmd.MethodBytes);
                 var e = new BasicReturnEventArgs
                 {
                     ReplyCode = basicReturn._replyCode,
@@ -819,15 +819,15 @@ namespace RabbitMQ.Client.Impl
 
         public abstract void _Private_UpdateSecret(byte[] @newSecret, string @reason);
 
-        public abstract void _Private_ExchangeBind(string destination, string source, string routingKey, bool nowait, IDictionary<string, object> arguments);
+        public abstract void _Private_ExchangeBind(string destination, in CachedString source, in CachedString routingKey, bool nowait, IDictionary<string, object> arguments);
 
-        public abstract void _Private_ExchangeDeclare(string exchange, string type, bool passive, bool durable, bool autoDelete, bool @internal, bool nowait, IDictionary<string, object> arguments);
+        public abstract void _Private_ExchangeDeclare(in CachedString exchange, string type, bool passive, bool durable, bool autoDelete, bool @internal, bool nowait, IDictionary<string, object> arguments);
 
-        public abstract void _Private_ExchangeDelete(string exchange, bool ifUnused, bool nowait);
+        public abstract void _Private_ExchangeDelete(in CachedString exchange, bool ifUnused, bool nowait);
 
-        public abstract void _Private_ExchangeUnbind(string destination, string source, string routingKey, bool nowait, IDictionary<string, object> arguments);
+        public abstract void _Private_ExchangeUnbind(string destination, in CachedString source, in CachedString routingKey, bool nowait, IDictionary<string, object> arguments);
 
-        public abstract void _Private_QueueBind(string queue, string exchange, string routingKey, bool nowait, IDictionary<string, object> arguments);
+        public abstract void _Private_QueueBind(string queue, in CachedString exchange, in CachedString routingKey, bool nowait, IDictionary<string, object> arguments);
 
         public abstract void _Private_QueueDeclare(string queue, bool passive, bool durable, bool exclusive, bool autoDelete, bool nowait, IDictionary<string, object> arguments);
 
@@ -909,11 +909,11 @@ namespace RabbitMQ.Client.Impl
                 }
             }
 
-            var cmd = new BasicPublish(exchange, routingKey, mandatory, default);
+            var cmd = new BasicPublish(new CachedString(exchange), new CachedString(routingKey), mandatory, default);
             ModelSend(ref cmd, ref basicProperties, body);
         }
 
-        public void BasicPublish<TProperties>(CachedString exchange, CachedString routingKey, ref TProperties basicProperties, ReadOnlyMemory<byte> body, bool mandatory)
+        public void BasicPublish<TProperties>(in CachedString exchange, in CachedString routingKey, ref TProperties basicProperties, ReadOnlyMemory<byte> body, bool mandatory)
             where TProperties : IReadOnlyBasicProperties, IAmqpHeader
         {
             if (NextPublishSeqNo > 0)
@@ -924,7 +924,7 @@ namespace RabbitMQ.Client.Impl
                 }
             }
 
-            var cmd = new BasicPublishMemory(exchange.Bytes, routingKey.Bytes, mandatory, default);
+            var cmd = new BasicPublish(in exchange, in routingKey, mandatory, default);
             ModelSend(ref cmd, ref basicProperties, body);
         }
 
@@ -974,57 +974,112 @@ namespace RabbitMQ.Client.Impl
 
         public void ExchangeBind(string destination, string source, string routingKey, IDictionary<string, object> arguments)
         {
-            _Private_ExchangeBind(destination, source, routingKey, false, arguments);
+            _Private_ExchangeBind(destination, new CachedString(source), new CachedString(routingKey), false, arguments);
+        }
+
+        public void ExchangeBind(string destination, in CachedString source, in CachedString routingKey, IDictionary<string, object> arguments)
+        {
+            _Private_ExchangeBind(destination, in source, in routingKey, false, arguments);
         }
 
         public void ExchangeBindNoWait(string destination, string source, string routingKey, IDictionary<string, object> arguments)
         {
-            _Private_ExchangeBind(destination, source, routingKey, true, arguments);
+            _Private_ExchangeBind(destination, new CachedString(source), new CachedString(routingKey), true, arguments);
+        }
+
+        public void ExchangeBindNoWait(string destination, in CachedString source, in CachedString routingKey, IDictionary<string, object> arguments)
+        {
+            _Private_ExchangeBind(destination, in source, in routingKey, true, arguments);
         }
 
         public void ExchangeDeclare(string exchange, string type, bool durable, bool autoDelete, IDictionary<string, object> arguments)
+        {
+            _Private_ExchangeDeclare(new CachedString(exchange), type, false, durable, autoDelete, false, false, arguments);
+        }
+
+        public void ExchangeDeclare(in CachedString exchange, string type, bool durable, bool autoDelete, IDictionary<string, object> arguments)
         {
             _Private_ExchangeDeclare(exchange, type, false, durable, autoDelete, false, false, arguments);
         }
 
         public void ExchangeDeclareNoWait(string exchange, string type, bool durable, bool autoDelete, IDictionary<string, object> arguments)
         {
+            _Private_ExchangeDeclare(new CachedString(exchange), type, false, durable, autoDelete, false, true, arguments);
+        }
+
+        public void ExchangeDeclareNoWait(in CachedString exchange, string type, bool durable, bool autoDelete, IDictionary<string, object> arguments)
+        {
             _Private_ExchangeDeclare(exchange, type, false, durable, autoDelete, false, true, arguments);
         }
 
         public void ExchangeDeclarePassive(string exchange)
+        {
+            _Private_ExchangeDeclare(new CachedString(exchange), "", true, false, false, false, false, null);
+        }
+
+        public void ExchangeDeclarePassive(in CachedString exchange)
         {
             _Private_ExchangeDeclare(exchange, "", true, false, false, false, false, null);
         }
 
         public void ExchangeDelete(string exchange, bool ifUnused)
         {
+            _Private_ExchangeDelete(new CachedString(exchange), ifUnused, false);
+        }
+
+        public void ExchangeDelete(in CachedString exchange, bool ifUnused)
+        {
             _Private_ExchangeDelete(exchange, ifUnused, false);
         }
 
         public void ExchangeDeleteNoWait(string exchange, bool ifUnused)
+        {
+            _Private_ExchangeDelete(new CachedString(exchange), ifUnused, true);
+        }
+
+        public void ExchangeDeleteNoWait(in CachedString exchange, bool ifUnused)
         {
             _Private_ExchangeDelete(exchange, ifUnused, true);
         }
 
         public void ExchangeUnbind(string destination, string source, string routingKey, IDictionary<string, object> arguments)
         {
-            _Private_ExchangeUnbind(destination, source, routingKey, false, arguments);
+            _Private_ExchangeUnbind(destination, new CachedString(source), new CachedString(routingKey), false, arguments);
+        }
+
+        public void ExchangeUnbind(string destination, in CachedString source, in CachedString routingKey, IDictionary<string, object> arguments)
+        {
+            _Private_ExchangeUnbind(destination, in source, in routingKey, false, arguments);
         }
 
         public void ExchangeUnbindNoWait(string destination, string source, string routingKey, IDictionary<string, object> arguments)
         {
-            _Private_ExchangeUnbind(destination, source, routingKey, true, arguments);
+            _Private_ExchangeUnbind(destination, new CachedString(source), new CachedString(routingKey), true, arguments);
+        }
+
+        public void ExchangeUnbindNoWait(string destination, in CachedString source, in CachedString routingKey, IDictionary<string, object> arguments)
+        {
+            _Private_ExchangeUnbind(destination, in source, in routingKey, true, arguments);
         }
 
         public void QueueBind(string queue, string exchange, string routingKey, IDictionary<string, object> arguments)
         {
-            _Private_QueueBind(queue, exchange, routingKey, false, arguments);
+            _Private_QueueBind(queue, new CachedString(exchange), new CachedString(routingKey), false, arguments);
+        }
+
+        public void QueueBind(string queue, in CachedString exchange, in CachedString routingKey, IDictionary<string, object> arguments)
+        {
+            _Private_QueueBind(queue, in exchange, in routingKey, false, arguments);
         }
 
         public void QueueBindNoWait(string queue, string exchange, string routingKey, IDictionary<string, object> arguments)
         {
-            _Private_QueueBind(queue, exchange, routingKey, true, arguments);
+            _Private_QueueBind(queue, new CachedString(exchange), new CachedString(routingKey), true, arguments);
+        }
+
+        public void QueueBindNoWait(string queue, in CachedString exchange, in CachedString routingKey, IDictionary<string, object> arguments)
+        {
+            _Private_QueueBind(queue, in exchange, in routingKey, true, arguments);
         }
 
         public QueueDeclareOk QueueDeclare(string queue, bool durable, bool exclusive, bool autoDelete, IDictionary<string, object> arguments)
@@ -1070,6 +1125,8 @@ namespace RabbitMQ.Client.Impl
         }
 
         public abstract void QueueUnbind(string queue, string exchange, string routingKey, IDictionary<string, object> arguments);
+
+        public abstract void QueueUnbind(string queue, in CachedString exchange, in CachedString routingKey, IDictionary<string, object> arguments);
 
         public abstract void TxCommit();
 

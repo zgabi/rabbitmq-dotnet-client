@@ -139,9 +139,9 @@ namespace RabbitMQ.Client.Framing.Impl
             ModelRpc(ref cmd, ProtocolCommandId.ConnectionUpdateSecretOk);
         }
 
-        public override void _Private_ExchangeBind(string destination, string source, string routingKey, bool nowait, IDictionary<string, object> arguments)
+        public override void _Private_ExchangeBind(string destination, in CachedString source, in CachedString routingKey, bool nowait, IDictionary<string, object> arguments)
         {
-            ExchangeBind method = new ExchangeBind(destination, source, routingKey, nowait, arguments);
+            ExchangeBind method = new ExchangeBind(destination, in source, in routingKey, nowait, arguments);
             if (nowait)
             {
                 ModelSend(ref method);
@@ -152,7 +152,7 @@ namespace RabbitMQ.Client.Framing.Impl
             }
         }
 
-        public override void _Private_ExchangeDeclare(string exchange, string type, bool passive, bool durable, bool autoDelete, bool @internal, bool nowait, IDictionary<string, object> arguments)
+        public override void _Private_ExchangeDeclare(in CachedString exchange, string type, bool passive, bool durable, bool autoDelete, bool @internal, bool nowait, IDictionary<string, object> arguments)
         {
             ExchangeDeclare method = new ExchangeDeclare(exchange, type, passive, durable, autoDelete, @internal, nowait, arguments);
             if (nowait)
@@ -165,9 +165,9 @@ namespace RabbitMQ.Client.Framing.Impl
             }
         }
 
-        public override void _Private_ExchangeDelete(string exchange, bool ifUnused, bool nowait)
+        public override void _Private_ExchangeDelete(in CachedString exchange, bool ifUnused, bool nowait)
         {
-            ExchangeDelete method = new ExchangeDelete(exchange, ifUnused, nowait);
+            ExchangeDelete method = new ExchangeDelete(in exchange, ifUnused, nowait);
             if (nowait)
             {
                 ModelSend(ref method);
@@ -178,9 +178,9 @@ namespace RabbitMQ.Client.Framing.Impl
             }
         }
 
-        public override void _Private_ExchangeUnbind(string destination, string source, string routingKey, bool nowait, IDictionary<string, object> arguments)
+        public override void _Private_ExchangeUnbind(string destination, in CachedString source, in CachedString routingKey, bool nowait, IDictionary<string, object> arguments)
         {
-            ExchangeUnbind method = new ExchangeUnbind(destination, source, routingKey, nowait, arguments);
+            ExchangeUnbind method = new ExchangeUnbind(destination, in source, in routingKey, nowait, arguments);
             if (nowait)
             {
                 ModelSend(ref method);
@@ -191,9 +191,9 @@ namespace RabbitMQ.Client.Framing.Impl
             }
         }
 
-        public override void _Private_QueueBind(string queue, string exchange, string routingKey, bool nowait, IDictionary<string, object> arguments)
+        public override void _Private_QueueBind(string queue, in CachedString exchange, in CachedString routingKey, bool nowait, IDictionary<string, object> arguments)
         {
-            QueueBind method = new QueueBind(queue, exchange, routingKey, nowait, arguments);
+            QueueBind method = new QueueBind(queue, in exchange, in routingKey, nowait, arguments);
             if (nowait)
             {
                 ModelSend(ref method);
@@ -273,7 +273,13 @@ namespace RabbitMQ.Client.Framing.Impl
 
         public override void QueueUnbind(string queue, string exchange, string routingKey, IDictionary<string, object> arguments)
         {
-            var cmd = new QueueUnbind(queue, exchange, routingKey, arguments);
+            var cmd = new QueueUnbind(queue, new CachedString(exchange), new CachedString(routingKey), arguments);
+            ModelRpc(ref cmd, ProtocolCommandId.QueueUnbindOk);
+        }
+
+        public override void QueueUnbind(string queue, in CachedString exchange, in CachedString routingKey, IDictionary<string, object> arguments)
+        {
+            var cmd = new QueueUnbind(queue, in exchange, in routingKey, arguments);
             ModelRpc(ref cmd, ProtocolCommandId.QueueUnbindOk);
         }
 

@@ -40,11 +40,11 @@ namespace RabbitMQ.Client.Framing.Impl
     {
         // deprecated
         // ushort _reserved1
-        public readonly string _exchange;
+        public readonly CachedString _exchange;
         public readonly bool _ifUnused;
         public readonly bool _nowait;
 
-        public ExchangeDelete(string Exchange, bool IfUnused, bool Nowait)
+        public ExchangeDelete(in CachedString Exchange, bool IfUnused, bool Nowait)
         {
             _exchange = Exchange;
             _ifUnused = IfUnused;
@@ -56,14 +56,14 @@ namespace RabbitMQ.Client.Framing.Impl
         public int WriteTo(Span<byte> span)
         {
             int offset = WireFormatting.WriteShort(ref span.GetStart(), default);
-            offset += WireFormatting.WriteShortstr(ref span.GetOffset(offset), _exchange);
+            offset += WireFormatting.WriteShortstr(ref span.GetOffset(offset), in _exchange);
             return offset + WireFormatting.WriteBits(ref span.GetOffset(offset), _ifUnused, _nowait);
         }
 
         public int GetRequiredBufferSize()
         {
             int bufferSize = 2 + 1 + 1; // bytes for _reserved1, length of _exchange, bit fields
-            bufferSize += WireFormatting.GetByteCount(_exchange); // _exchange in bytes
+            bufferSize += _exchange.BytesLength; // _exchange in bytes
             return bufferSize;
         }
     }

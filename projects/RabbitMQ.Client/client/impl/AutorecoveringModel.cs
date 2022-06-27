@@ -253,9 +253,9 @@ namespace RabbitMQ.Client.Impl
             where TProperties : IReadOnlyBasicProperties, IAmqpHeader
             => InnerChannel.BasicPublish(exchange, routingKey, ref basicProperties, body, mandatory);
 
-        public void BasicPublish<TProperties>(CachedString exchange, CachedString routingKey, ref TProperties basicProperties, ReadOnlyMemory<byte> body, bool mandatory)
+        public void BasicPublish<TProperties>(in CachedString exchange, in CachedString routingKey, ref TProperties basicProperties, ReadOnlyMemory<byte> body, bool mandatory)
             where TProperties : IReadOnlyBasicProperties, IAmqpHeader
-            => InnerChannel.BasicPublish(exchange, routingKey, ref basicProperties, body, mandatory);
+            => InnerChannel.BasicPublish(in exchange, in routingKey, ref basicProperties, body, mandatory);
 
         public void BasicQos(uint prefetchSize, ushort prefetchCount, bool global)
         {
@@ -289,21 +289,45 @@ namespace RabbitMQ.Client.Impl
         public void ExchangeBind(string destination, string source, string routingKey, IDictionary<string, object> arguments)
         {
             ThrowIfDisposed();
-            _connection.RecordBinding(new RecordedBinding(false, destination, source, routingKey, arguments));
+            _connection.RecordBinding(new RecordedBinding(false, destination, new CachedString(source), new CachedString(routingKey), arguments));
             _innerChannel.ExchangeBind(destination, source, routingKey, arguments);
+        }
+
+        public void ExchangeBind(string destination, in CachedString source, in CachedString routingKey, IDictionary<string, object> arguments)
+        {
+            ThrowIfDisposed();
+            _connection.RecordBinding(new RecordedBinding(false, destination, in source, in routingKey, arguments));
+            _innerChannel.ExchangeBind(destination, in source, in routingKey, arguments);
         }
 
         public void ExchangeBindNoWait(string destination, string source, string routingKey, IDictionary<string, object> arguments)
             => InnerChannel.ExchangeBindNoWait(destination, source, routingKey, arguments);
 
+        public void ExchangeBindNoWait(string destination, in CachedString source, in CachedString routingKey, IDictionary<string, object> arguments)
+            => InnerChannel.ExchangeBindNoWait(destination, in source, in routingKey, arguments);
+
         public void ExchangeDeclare(string exchange, string type, bool durable, bool autoDelete, IDictionary<string, object> arguments)
         {
             ThrowIfDisposed();
             _innerChannel.ExchangeDeclare(exchange, type, durable, autoDelete, arguments);
-            _connection.RecordExchange(new RecordedExchange(exchange, type, durable, autoDelete, arguments));
+            _connection.RecordExchange(new RecordedExchange(new CachedString(exchange), type, durable, autoDelete, arguments));
+        }
+
+        public void ExchangeDeclare(in CachedString exchange, string type, bool durable, bool autoDelete, IDictionary<string, object> arguments)
+        {
+            ThrowIfDisposed();
+            _innerChannel.ExchangeDeclare(exchange, type, durable, autoDelete, arguments);
+            _connection.RecordExchange(new RecordedExchange(in exchange, type, durable, autoDelete, arguments));
         }
 
         public void ExchangeDeclareNoWait(string exchange, string type, bool durable, bool autoDelete, IDictionary<string, object> arguments)
+        {
+            ThrowIfDisposed();
+            _innerChannel.ExchangeDeclareNoWait(exchange, type, durable, autoDelete, arguments);
+            _connection.RecordExchange(new RecordedExchange(new CachedString(exchange), type, durable, autoDelete, arguments));
+        }
+
+        public void ExchangeDeclareNoWait(in CachedString exchange, string type, bool durable, bool autoDelete, IDictionary<string, object> arguments)
         {
             ThrowIfDisposed();
             _innerChannel.ExchangeDeclareNoWait(exchange, type, durable, autoDelete, arguments);
@@ -328,23 +352,44 @@ namespace RabbitMQ.Client.Impl
         public void ExchangeUnbind(string destination, string source, string routingKey, IDictionary<string, object> arguments)
         {
             ThrowIfDisposed();
-            _connection.DeleteRecordedBinding(new RecordedBinding(false, destination, source, routingKey, arguments));
+            _connection.DeleteRecordedBinding(new RecordedBinding(false, destination, new CachedString(source), new CachedString(routingKey), arguments));
             _innerChannel.ExchangeUnbind(destination, source, routingKey, arguments);
             _connection.DeleteAutoDeleteExchange(source);
+        }
+
+        public void ExchangeUnbind(string destination, in CachedString source, in CachedString routingKey, IDictionary<string, object> arguments)
+        {
+            ThrowIfDisposed();
+            _connection.DeleteRecordedBinding(new RecordedBinding(false, destination, in source, in routingKey, arguments));
+            _innerChannel.ExchangeUnbind(destination, in source, in routingKey, arguments);
+            _connection.DeleteAutoDeleteExchange(source.Value);
         }
 
         public void ExchangeUnbindNoWait(string destination, string source, string routingKey, IDictionary<string, object> arguments)
             => InnerChannel.ExchangeUnbind(destination, source, routingKey, arguments);
 
+        public void ExchangeUnbindNoWait(string destination, in CachedString source, in CachedString routingKey, IDictionary<string, object> arguments)
+            => InnerChannel.ExchangeUnbind(destination, in source, in routingKey, arguments);
+
         public void QueueBind(string queue, string exchange, string routingKey, IDictionary<string, object> arguments)
         {
             ThrowIfDisposed();
-            _connection.RecordBinding(new RecordedBinding(true, queue, exchange, routingKey, arguments));
+            _connection.RecordBinding(new RecordedBinding(true, queue, new CachedString(exchange), new CachedString(routingKey), arguments));
             _innerChannel.QueueBind(queue, exchange, routingKey, arguments);
+        }
+
+        public void QueueBind(string queue, in CachedString exchange, in CachedString routingKey, IDictionary<string, object> arguments)
+        {
+            ThrowIfDisposed();
+            _connection.RecordBinding(new RecordedBinding(true, queue, in exchange, in routingKey, arguments));
+            _innerChannel.QueueBind(queue, in exchange, in routingKey, arguments);
         }
 
         public void QueueBindNoWait(string queue, string exchange, string routingKey, IDictionary<string, object> arguments)
             => InnerChannel.QueueBind(queue, exchange, routingKey, arguments);
+
+        public void QueueBindNoWait(string queue, in CachedString exchange, in CachedString routingKey, IDictionary<string, object> arguments)
+            => InnerChannel.QueueBind(queue, in exchange, in routingKey, arguments);
 
         public QueueDeclareOk QueueDeclare(string queue, bool durable, bool exclusive, bool autoDelete, IDictionary<string, object> arguments)
         {
@@ -390,9 +435,17 @@ namespace RabbitMQ.Client.Impl
         public void QueueUnbind(string queue, string exchange, string routingKey, IDictionary<string, object> arguments)
         {
             ThrowIfDisposed();
-            _connection.DeleteRecordedBinding(new RecordedBinding(true, queue, exchange, routingKey, arguments));
+            _connection.DeleteRecordedBinding(new RecordedBinding(true, queue, new CachedString(exchange), new CachedString(routingKey), arguments));
             _innerChannel.QueueUnbind(queue, exchange, routingKey, arguments);
             _connection.DeleteAutoDeleteExchange(exchange);
+        }
+
+        public void QueueUnbind(string queue, in CachedString exchange, in CachedString routingKey, IDictionary<string, object> arguments)
+        {
+            ThrowIfDisposed();
+            _connection.DeleteRecordedBinding(new RecordedBinding(true, queue, in exchange, in routingKey, arguments));
+            _innerChannel.QueueUnbind(queue, in exchange, in routingKey, arguments);
+            _connection.DeleteAutoDeleteExchange(exchange.Value);
         }
 
         public void TxCommit()

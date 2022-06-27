@@ -53,8 +53,8 @@ namespace RabbitMQ.Client.Unit
             public override void HandleBasicDeliver(string consumerTag,
                                                ulong deliveryTag,
                                                bool redelivered,
-                                               string exchange,
-                                               string routingKey,
+                                               in CachedString exchange,
+                                               in CachedString routingKey,
                                                in ReadOnlyBasicProperties properties,
                                                ReadOnlyMemory<byte> body)
             {

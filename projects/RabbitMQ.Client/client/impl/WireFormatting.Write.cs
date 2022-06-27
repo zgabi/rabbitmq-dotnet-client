@@ -332,6 +332,17 @@ namespace RabbitMQ.Client.Impl
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int WriteShortstr(ref byte destination, in CachedString value)
+        {
+            if (value.HasBytes)
+            {
+                return WriteShortstr(ref destination, value.Bytes.Span);
+            }
+
+            return WriteShortstr(ref destination, value.Value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int WriteShortstr(ref byte destination, string val)
         {
             int bytesWritten = 0;

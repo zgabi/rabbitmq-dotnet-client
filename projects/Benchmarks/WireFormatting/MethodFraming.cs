@@ -26,9 +26,8 @@ namespace RabbitMQ.Benchmarks
     [BenchmarkCategory("Framing")]
     public class MethodFramingBasicPublish
     {
-        private const string StringValue = "Exchange_OR_RoutingKey";
-        private BasicPublish _basicPublish = new BasicPublish(StringValue, StringValue, false, false);
-        private BasicPublishMemory _basicPublishMemory = new BasicPublishMemory(Encoding.UTF8.GetBytes(StringValue), Encoding.UTF8.GetBytes(StringValue), false, false);
+        private static readonly CachedString StringValue = new CachedString("Exchange_OR_RoutingKey");
+        private BasicPublish _basicPublish = new BasicPublish(in StringValue, StringValue, false, false);
         private EmptyBasicProperty _propertiesEmpty = new EmptyBasicProperty();
         private BasicProperties _properties = new BasicProperties { AppId = "Application id", MessageId = "Random message id" };
         private readonly ReadOnlyMemory<byte> _bodyEmpty = ReadOnlyMemory<byte>.Empty;
@@ -45,9 +44,6 @@ namespace RabbitMQ.Benchmarks
 
         [Benchmark]
         public ReadOnlyMemory<byte> BasicPublishWrite() => Framing.SerializeToFrames(ref _basicPublish, ref _propertiesEmpty, _bodyEmpty, Channel, FrameMax);
-
-        [Benchmark]
-        public ReadOnlyMemory<byte> BasicPublishMemoryWrite() => Framing.SerializeToFrames(ref _basicPublishMemory, ref _propertiesEmpty, _bodyEmpty, Channel, FrameMax);
     }
 
     [Config(typeof(Config))]
